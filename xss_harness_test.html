@@ -14,8 +14,15 @@
 <!-- HEAD-context vectors (title / meta / base / refresh) -->
 <meta name="description" content="x&quot;&gt;&lt;img src=x onerror=alert('meta-description')&gt;">
 <meta name="keywords" content="&lt;script&gt;alert('meta-keywords')&lt;/script&gt;">
-<meta http-equiv="refresh" content="9999;url=javascript:alert('meta-refresh')">
-<base href="javascript:alert('base-href')//">
+<!--
+  meta-refresh / base-href payloads DISABLED for crawling. Scrapy's
+  MetaRefreshMiddleware FOLLOWS a meta refresh at the fetch layer and raises
+  "Missing scheme in request url: javascript:..." on a non-http URL, which
+  errors the whole page download before the parser ever runs. These target a
+  browser, not the text parser. Re-enable only when testing in a browser:
+  <meta http-equiv="refresh" content="0;url=javascript:alert('meta-refresh')">
+  <base href="javascript:alert('base-href')//">
+-->
 <link rel="stylesheet" href="javascript:alert('link-href')">
 <style>@import 'javascript:alert("css-import")';</style>
 </head>
