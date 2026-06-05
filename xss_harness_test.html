@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>XSS test page</title>
+<title>XSS test page &lt;img src=x onerror=alert('title')&gt;&lt;script&gt;alert('title-script')&lt;/script&gt;</title>
 
 <!--
   DISCLAIMER: This is a SECURITY TEST PAGE. It intentionally contains XSS
@@ -28,7 +28,7 @@
 </head>
 
 <body>
-<h1>XSS test page</h1>
+<h1>XSS test page &lt;img src=x onerror=alert('h1-heading')&gt;</h1>
 <p>If you see an alert, the payload in its text survived parsing/rendering.</p>
 
 <!-- ===== Script injection ===== -->
