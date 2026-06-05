@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XSS test page</title>
+
+<!--
+  DISCLAIMER: This is a SECURITY TEST PAGE. It intentionally contains XSS
+  payloads used to verify that our parser/frontend sanitizes untrusted HTML.
+  It is harmless on its own (each payload only pops a self-identifying alert).
+  Do not treat it as real content; remove it from any production deployment.
+-->
+
+<!-- HEAD-context vectors (title / meta / base / refresh) -->
+<meta name="description" content="x&quot;&gt;&lt;img src=x onerror=alert('meta-description')&gt;">
+<meta name="keywords" content="&lt;script&gt;alert('meta-keywords')&lt;/script&gt;">
+<meta http-equiv="refresh" content="9999;url=javascript:alert('meta-refresh')">
+<base href="javascript:alert('base-href')//">
+<link rel="stylesheet" href="javascript:alert('link-href')">
+<style>@import 'javascript:alert("css-import")';</style>
+</head>
+
+<body>
+<h1>XSS test page</h1>
+<p>If you see an alert, the payload in its text survived parsing/rendering.</p>
+
+<!-- ===== Script injection ===== -->
+<script>alert('script-tag')</script>
+<ScRiPt>alert('script-mixed-case')</ScRiPt>
+<script src="data:text/javascript,alert('script-src-data')"></script>
+
+<!-- ===== Image / media error handlers ===== -->
+<img src=x onerror="alert('img-onerror')">
+<img src="javascript:alert('img-src-js')">
+<video src=x onerror="alert('video-onerror')"></video>
+<audio src=x onerror="alert('audio-onerror')"></audio>
+<video><source onerror="alert('source-onerror')"></video>
+
+<!-- ===== SVG ===== -->
+<svg onload="alert('svg-onload')"></svg>
+<svg><image href=x onerror="alert('svg-image-onerror')"></image></svg>
+<svg><animate onbegin="alert('svg-animate-onbegin')" attributeName=x dur=1s></svg>
+<svg><a><text>x</text><set attributeName=href onbegin="alert('svg-set-onbegin')"></set></a></svg>
+
+<!-- ===== Focus / toggle / interaction handlers ===== -->
+<input autofocus onfocus="alert('input-autofocus')">
+<select autofocus onfocus="alert('select-autofocus')"><option>a</option></select>
+<textarea autofocus onfocus="alert('textarea-autofocus')"></textarea>
+<details open ontoggle="alert('details-ontoggle')"><summary>x</summary></details>
+<div onmouseover="alert('onmouseover')">hover me</div>
+<div onpointerover="alert('onpointerover')">point me</div>
+<body onload="alert('body-onload')">
+
+<!-- ===== Links / forms (require a click) ===== -->
+<a href="javascript:alert('a-href-js')">a: click to test javascript: href</a><br>
+<a href="data:text/html,&lt;script&gt;alert('a-href-data')&lt;/script&gt;">a: click to test data: href</a><br>
+<form action="javascript:alert('form-action')"><button>form: click to submit</button></form>
+<button formaction="javascript:alert('button-formaction')">button: formaction</button>
+
+<!-- ===== Embedded objects / frames ===== -->
+<iframe src="javascript:alert('iframe-src-js')"></iframe>
+<iframe srcdoc="&lt;script&gt;alert('iframe-srcdoc')&lt;/script&gt;"></iframe>
+<object data="javascript:alert('object-data')"></object>
+<embed src="javascript:alert('embed-src')">
+
+<!-- ===== Deprecated / odd tags ===== -->
+<marquee onstart="alert('marquee-onstart')">marquee</marquee>
+<style onload="alert('style-onload')"></style>
+
+<!-- ===== Entity-encoded (only fires if the renderer decodes back to markup) ===== -->
+&lt;img src=x onerror=alert('entity-decoded')&gt;
+&lt;script&gt;alert('entity-script')&lt;/script&gt;
+
+<!-- ===== mXSS / parser-confusion ===== -->
+<noscript><p title="</noscript><img src=x onerror=alert('mxss-noscript')>">x</p></noscript>
+<template><img src=x onerror="alert('mxss-template')"></template>
+<math><mtext><table><mglyph><style><img src=x onerror=alert('mxss-math')></style></table></math>
+
+<!-- ===== Polyglot (tries several contexts at once) ===== -->
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert('polyglot') )//%0D%0A//<\/stYle/<\/titLe/<\/teXtarEa/<\/scRipt/--!><\/scRipt><svg onload=alert('polyglot')>
+
+</body>
+</html>
